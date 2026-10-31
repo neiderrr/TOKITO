@@ -16,6 +16,12 @@
 *{box-sizing:border-box}
 body{margin:0;height:100vh;overflow:hidden;font-family:Nunito,sans-serif;background:var(--bg);color:var(--text)}
 header{height:48px;background:var(--panel2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:16px}
+.zoom-controls{display:flex;align-items:center;gap:4px;margin-left:auto}
+.zoom-controls button{height:29px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--blue2);font:800 11px Nunito;cursor:pointer;padding:0 9px}
+.zoom-controls button:hover{background:var(--panel)}
+.zoom-controls .zoom-level{min-width:52px;font-variant-numeric:tabular-nums}
+.zoom-controls .zoom-fit{padding:0 10px}
+
 .logo{font-size:21px;font-weight:900;color:var(--blue2);letter-spacing:2px}
 .logo span{color:var(--blue)}
 .menus{display:flex;gap:4px;height:100%;align-items:center}
@@ -237,6 +243,7 @@ body.animation-mode .timeline{display:block}
  .timeline{grid-column:2;grid-row:2}
  .status{display:none}#paint{width:75vw}
  header{gap:6px;padding:0 7px}.menus{gap:0}.menu>button{padding:7px 5px;font-size:11px}
+ .zoom-controls{gap:2px}.zoom-controls button{padding:0 6px;height:27px}.zoom-controls .zoom-fit{display:none}
  #toggleAnimation{font-size:10px;padding:6px}
 }
 </style>
@@ -271,6 +278,12 @@ body.animation-mode .timeline{display:block}
    <button onclick="alert('TOKITO Creative Studio\\nVersión 2.1')">Acerca de TOKITO</button>
   </div></div>
  </nav>
+ <div class="zoom-controls" aria-label="Controles de zoom">
+  <button class="zoom-button" type="button" onclick="changeZoom(-1)" title="Alejar (Ctrl+-)">−</button>
+  <button class="zoom-level" type="button" onclick="resetZoom()" id="zoomLevel" title="Restablecer zoom">100%</button>
+  <button class="zoom-button" type="button" onclick="changeZoom(1)" title="Acercar (Ctrl++)">＋</button>
+  <button class="zoom-fit" type="button" onclick="fitCanvas()" title="Ajustar lienzo al espacio">Ajustar</button>
+ </div>
  <button id="toggleAnimation" onclick="toggleAnimation()">Activar animación</button>
  <div class="status" id="saveStatus">● Guardado</div>
 </header>
@@ -438,6 +451,24 @@ function updateZoom(){
  const height = H * zoom;
  canvas.style.width = width + 'px';
  canvas.style.height = height + 'px';
+ const label = $('zoomLevel');
+ if(label) label.textContent = Math.round(zoom * 100) + '%';
+}
+
+function changeZoom(direction){
+ const next = zoom * (direction > 0 ? 1.2 : 1 / 1.2);
+ zoom = Math.min(maxZoom, Math.max(minZoom, next));
+ updateZoom();
+}
+
+function fitCanvas(){
+ const availableWidth = Math.max(200, stage.clientWidth - 50);
+ const availableHeight = Math.max(200, stage.clientHeight - 50);
+ zoom = Math.min(1, availableWidth / W, availableHeight / H);
+ zoom = Math.max(minZoom, Math.min(maxZoom, zoom));
+ updateZoom();
+ stage.scrollLeft = 0;
+ stage.scrollTop = 0;
 }
 
 function resetZoom(){
@@ -1181,6 +1212,9 @@ window.addEventListener('keydown',e=>{
  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();newProject()}
  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}
  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}
+ if((e.ctrlKey||e.metaKey)&&(e.key==='+'||e.key==='=')){e.preventDefault();changeZoom(1)}
+ if((e.ctrlKey||e.metaKey)&&e.key==='-'){e.preventDefault();changeZoom(-1)}
+ if((e.ctrlKey||e.metaKey)&&e.key==='0'){e.preventDefault();resetZoom()}
 });
 
 initProject();
