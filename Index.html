@@ -979,7 +979,7 @@ function stabilizePoint(point){
  return smoothedPoint;
 }
 
-// Dibujar segmento con propiedades del pincel
+// Dibujar cada pincel con una apariencia realmente distinta
 function draw(a,b){
  const l=currentLayer();
  if(!l || l.locked)return;
@@ -989,65 +989,99 @@ function draw(a,b){
  const size=Number($('size').value);
  const opacity=Number($('opacity').value)/100;
  const color=$('color').value;
-
  const pressure=Math.max(0.15,Math.min(1,b.pressure??1));
+ const dx=b.x-a.x,dy=b.y-a.y;
+ const distance=Math.hypot(dx,dy);
+ const steps=Math.max(1,Math.ceil(distance/Math.max(2,size*0.22)));
 
  c.save();
+ c.globalCompositeOperation='source-over';
  c.lineCap='round';
  c.lineJoin='round';
- c.lineWidth=size;
- c.globalAlpha=opacity;
- c.globalCompositeOperation='source-over';
  c.strokeStyle=color;
  c.fillStyle=color;
  c.shadowBlur=0;
+ c.globalAlpha=opacity;
+
+ const stroke=(width,alpha=opacity)=>{
+  c.globalAlpha=alpha;
+  c.lineWidth=width;
+  c.beginPath();
+  c.moveTo(a.x,a.y);
+  c.lineTo(b.x,b.y);
+  c.stroke();
+ };
 
  if(brush==='eraser'||tool==='eraser'){
   c.globalCompositeOperation='destination-out';
   c.globalAlpha=1;
- }
-
- if(brush==='pencil'){
-  c.lineWidth=size*0.8*pressure;
-  c.globalAlpha=opacity*0.85;
- }
-
- if(brush==='pen'){
-  c.lineWidth=size*pressure;
- }
-
- if(brush==='marker'){
-  c.lineWidth=size*1.5;
-  c.globalAlpha=opacity*0.45;
- }
-
- if(brush==='watercolor'){
-  c.lineWidth=size*1.8;
-  c.globalAlpha=opacity*0.2;
- }
-
- if(brush==='airbrush'){
   c.lineWidth=size;
-  c.globalAlpha=opacity*0.12;
-  c.shadowBlur=size*0.7;
-  c.shadowColor=color;
- }
-
- if(brush==='pixel'){
+  c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
+ }else if(brush==='pen'){
+  // Plumilla: borde limpio y grosor sensible a la presión
+  stroke(Math.max(0.6,size*pressure));
+ }else if(brush==='pencil'){
+  // Lápiz: línea fina con grano y pequeñas variaciones de grafito
+  stroke(Math.max(0.7,size*0.48*pressure),opacity*0.82);
+  c.globalAlpha=opacity*0.24;
+  c.lineWidth=Math.max(0.5,size*0.9);
+  c.beginPath();c.moveTo(a.x+0.7,a.y-0.6);c.lineTo(b.x+0.7,b.y-0.6);c.stroke();
+  c.globalAlpha=opacity*0.22;
+  for(let i=0;i<=steps;i++){
+   const t=i/steps,x=a.x+dx*t,y=a.y+dy*t;
+   for(let n=0;n<2;n++){
+    const jitter=(Math.random()-0.5)*size*0.7;
+    c.fillRect(x+jitter,y+(Math.random()-0.5)*size*0.7,0.8,0.8);
+   }
+  }
+ }else if(brush==='marker'){
+  // Marcador: punta ancha, plana y translúcida
   c.lineCap='square';
-  c.lineJoin='miter';
+  stroke(size*1.65,opacity*0.34);
+  c.globalAlpha=opacity*0.13;
+  c.lineWidth=size*1.85;
+  c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
+ }else if(brush==='watercolor'){
+  // Acuarela: pigmento suave con bordes difuminados y varias pasadas
+  c.lineCap='round';
+  c.shadowColor=color;
+  c.shadowBlur=size*0.9;
+  stroke(size*1.7,opacity*0.16);
+  c.shadowBlur=size*0.35;
+  stroke(size*0.95,opacity*0.12);
+  c.shadowBlur=0;
+  c.globalAlpha=opacity*0.10;
+  for(let i=0;i<=steps;i++){
+   const t=i/steps,x=a.x+dx*t,y=a.y+dy*t;
+   const radius=size*(0.35+Math.random()*0.45);
+   c.beginPath();c.arc(x,y,radius,0,Math.PI*2);c.fill();
+  }
+ }else if(brush==='airbrush'){
+  // Aerógrafo: pulverización radial sin contorno definido
+  c.globalAlpha=1;
+  for(let i=0;i<=steps;i++){
+   const t=i/steps,x=a.x+dx*t,y=a.y+dy*t;
+   const radius=size*1.15;
+   const g=c.createRadialGradient(x,y,0,x,y,radius);
+   g.addColorStop(0,color);
+   g.addColorStop(0.35,color);
+   g.addColorStop(1,'rgba(255,255,255,0)');
+   c.globalAlpha=opacity*0.12;
+   c.fillStyle=g;
+   c.beginPath();c.arc(x,y,radius,0,Math.PI*2);c.fill();
+  }
+ }else if(brush==='pixel'){
+  // Pixel: segmentos cuadrados alineados a la cuadrícula
+  c.lineCap='square';c.lineJoin='miter';
+  c.globalAlpha=opacity;
   c.lineWidth=Math.max(1,Math.round(size/3));
-  a={...a,x:Math.round(a.x),y:Math.round(a.y)};
-  b={...b,x:Math.round(b.x),y:Math.round(b.y)};
+  c.beginPath();
+  c.moveTo(Math.round(a.x),Math.round(a.y));
+  c.lineTo(Math.round(b.x),Math.round(b.y));
+  c.stroke();
  }
-
- c.beginPath();
- c.moveTo(a.x,a.y);
- c.lineTo(b.x,b.y);
- c.stroke();
 
  c.restore();
-
  composite();
  renderFrames();
 }
