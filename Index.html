@@ -36,15 +36,6 @@ body.animation-mode .app{grid-template-rows:minmax(0,1fr) 175px}
 .tool.active{background:var(--blue);color:white;outline:2px solid var(--blue2)}
 .stage{background-color:#b9d9ed;background-image:linear-gradient(45deg,#c9e4f4 25%,transparent 25%),linear-gradient(-45deg,#c9e4f4 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#c9e4f4 75%),linear-gradient(-45deg,transparent 75%,#c9e4f4 75%);background-size:20px 20px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px}
 .canvas-frame{background:white;padding:5px;border:1px solid var(--border);box-shadow:0 8px 25px #416d8b55;line-height:0}
-.canvas-frame{
- background:white;
- padding:5px;
- border:1px solid var(--border);
- box-shadow:0 8px 25px #416d8b55;
- line-height:0;
- transform-origin:top left;
-}
-
 #paint{
  display:block;
  width:800px;
@@ -438,41 +429,51 @@ const canvas=$('paint'),ctx=canvas.getContext('2d');
 
 let zoom = 1;
 const minZoom = 0.25;
-const maxZoom = 4;
-const zoomStep = 0.1;
-
+const maxZoom = 3;
 const stage = $('stage');
 const canvasFrame = document.querySelector('.canvas-frame');
 
 function updateZoom(){
- canvasFrame.style.transform = `scale(${zoom})`;
- canvasFrame.style.transformOrigin = 'center center';
+ const width = W * zoom;
+ const height = H * zoom;
+ canvas.style.width = width + 'px';
+ canvas.style.height = height + 'px';
+}
+
+function resetZoom(){
+ zoom = 1;
+ updateZoom();
+ stage.scrollLeft = 0;
+ stage.scrollTop = 0;
 }
 
 stage.addEventListener('wheel', e => {
  e.preventDefault();
 
- const rect = canvasFrame.getBoundingClientRect();
-
- const mouseX = e.clientX - rect.left;
- const mouseY = e.clientY - rect.top;
-
  const oldZoom = zoom;
- const direction = e.deltaY < 0 ? 1 : -1;
+ const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+ const nextZoom = Math.min(maxZoom, Math.max(minZoom, oldZoom * factor));
+ if(nextZoom === oldZoom)return;
 
- zoom = Math.min(maxZoom, Math.max(minZoom, zoom + direction * zoomStep));
+ const stageRect = stage.getBoundingClientRect();
+ const pointerX = e.clientX - stageRect.left;
+ const pointerY = e.clientY - stageRect.top;
 
- if(zoom === oldZoom)return;
+ // Punto del lienzo que queda debajo del cursor antes del zoom.
+ const frameRect = canvasFrame.getBoundingClientRect();
+ const contentX = (e.clientX - frameRect.left) / oldZoom;
+ const contentY = (e.clientY - frameRect.top) / oldZoom;
 
+ zoom = nextZoom;
  updateZoom();
+
+ // Mantiene ese mismo punto debajo del cursor después del zoom.
+ stage.scrollLeft += contentX * (nextZoom - oldZoom);
+ stage.scrollTop += contentY * (nextZoom - oldZoom);
 }, { passive:false });
 
-function resetZoom(){
- zoom = 1;
- updateZoom();
-}
-
 updateZoom();
+
 let projectName='Mi proyecto',tool='pen';
 let frames=[],layers=[],activeFrame=0,activeLayer=0;
 let undoStack=[],redoStack=[],playback=null,gridVisible=true,dirty=false;
