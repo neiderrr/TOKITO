@@ -247,169 +247,74 @@ body.animation-mode .timeline{display:block}
  #toggleAnimation{font-size:10px;padding:6px}
 }
 
-/* =========================================
-   TOKITO UI REFRESH — inspirado en flip98
-   Mantiene intactos el lienzo y sus funciones.
-========================================= */
-:root{
- --bg:#111923;
- --panel:#1b2735;
- --panel2:#202f40;
- --blue:#4da9e8;
- --blue2:#79c4fa;
- --border:#304457;
- --text:#e5eef7;
- --muted:#91a6ba;
- --white:#26384a;
-}
-body{background:var(--bg);color:var(--text)}
-header{
- height:54px;padding:0 16px;gap:14px;
- background:#172331;border-bottom:1px solid #2b4054;
- box-shadow:0 2px 12px #07111c55;position:relative;z-index:10
-}
-.logo{font-size:20px;letter-spacing:2.2px;color:#eaf6ff}
-.logo span{color:var(--blue)}
-.menus{gap:3px}
-.menu>button{color:#bdcddd;font-size:12px;padding:8px 9px}
-.menu>button:hover,.menu.open>button{background:#26394d;color:#fff}
-.dropdown{
- top:39px;background:#202f40;border-color:#3b5369;
- box-shadow:0 12px 30px #0007;border-radius:9px
-}
-.dropdown button{color:#d9e7f3}
-.dropdown button:hover{background:#30465b}
-.dropdown hr{border-color:#3b5369}
-.zoom-controls{margin-left:auto;gap:5px}
-.zoom-controls button{
- height:30px;border-color:#3b5369;background:#223448;color:#d8edff;
- border-radius:7px;font-size:12px
-}
-.zoom-controls button:hover{background:#304b65}
-#toggleAnimation{
- border:1px solid #3b5369;background:#223448;color:#d8edff;
- border-radius:7px;padding:7px 11px;font:800 11px Nunito
-}
-#toggleAnimation:hover{background:#304b65}
-.status{font-size:10px;color:#8fa9be;white-space:nowrap}
-.app{
- height:calc(100vh - 54px);
- grid-template-columns:62px minmax(0,1fr) 292px;
- grid-template-rows:minmax(0,1fr) 0
-}
-body.animation-mode .app{grid-template-rows:minmax(0,1fr) 178px}
-.toolbar{
- background:#172331;border-right:1px solid #2b4054;
- padding:13px 8px;gap:10px
-}
-.tool{
- width:42px;height:42px;border:1px solid transparent;
- border-radius:10px;background:transparent;color:#9fb4c8;
- font-size:19px;transition:background .15s,border .15s,color .15s
-}
-.tool:hover{background:#26394d;color:#fff;border-color:#3a5268}
-.tool.active{
- background:#24547a;color:#eaf7ff;border:1px solid #4da9e8;
- outline:none;box-shadow:0 0 0 2px #4da9e822
-}
-.stage{
- background-color:#111923;
- background-image:
-  linear-gradient(45deg,#182330 25%,transparent 25%),
-  linear-gradient(-45deg,#182330 25%,transparent 25%),
-  linear-gradient(45deg,transparent 75%,#182330 75%),
-  linear-gradient(-45deg,transparent 75%,#182330 75%);
- background-size:22px 22px;
- padding:28px
-}
-.canvas-frame{
- background:#fff;padding:4px;border:1px solid #60788e;
- box-shadow:0 16px 45px #0008;border-radius:2px
-}
-.panel{
- background:#1b2735;border-left:1px solid #2b4054;
- padding:16px 14px;color:var(--text)
-}
-.section{margin-bottom:22px}
-.panel-title{
- color:#80c8fa;font-size:11px;letter-spacing:1.15px;
- border-bottom:1px solid #34495d;padding-bottom:10px;margin-bottom:12px
-}
-label{color:#a8bbcd;font-size:11px}
-select,.layer-tools input{
- background:#223448;color:#e5eef7;border:1px solid #3b5369;
- border-radius:7px;padding:9px;font:700 11px Nunito
-}
-input[type=color]{
- background:#223448;border:1px solid #3b5369;border-radius:7px
-}
-input[type=range]{accent-color:#55afea}
-.action{
- border:1px solid #3b5369;background:#263b50;color:#dcecf9;
- border-radius:7px;padding:8px 10px;font:800 11px Nunito;
- transition:background .15s,border .15s
-}
-.action:hover{background:#304d68;border-color:#5682a6;filter:none}
-.layer-properties{
- background:#202f40;border:1px solid #344b60;border-radius:9px;padding:10px
-}
-.layer-property-heading{color:#dceaf6}
-.layer-tools input{width:100%}
-.layers{gap:6px}
-.layer{
- background:#223448;border:1px solid #344b60;border-radius:8px;
- color:#dceaf6;padding:8px
-}
-.layer.selected{
- background:#24435e;border:1px solid #55afea;padding:8px;
- box-shadow:inset 3px 0 #55afea
-}
-.layer-thumb{border-color:#536d83;border-radius:5px}
-.layer-subtitle{color:#91a6ba}
-.layer button{color:#a9c9e2}
-.layer button:hover{background:#344e66}
-.layer-menu-content{
- background:#26394d;border-color:#456078;box-shadow:0 8px 20px #0008
-}
-.layer-menu-content button{color:#e5eef7}
-.layer-menu-content button:hover{background:#36516a}
-.layer-empty{color:#91a6ba}
-.timeline{
- background:#172331;border-top:1px solid #304457;padding:12px 16px
-}
-.timeline-head strong{color:#80c8fa}
-.timeline-head label{color:#a8bbcd}
-.frames{gap:9px}
-.frame{
- flex-basis:92px;height:108px;background:#223448;
- border:1px solid #3b5369;border-radius:8px;color:#a9bfd2
-}
-.frame.selected{
- border:2px solid #55afea;background:#24435e;color:#eaf6ff
-}
-.frame canvas{border:1px solid #526a80;border-radius:3px}
-.modal-backdrop{background:#050b12bb;backdrop-filter:blur(4px)}
-.modal{
- background:#202f40;border:1px solid #456078;color:#e5eef7;
- border-radius:13px;box-shadow:0 18px 55px #0009
-}
-.modal h2{color:#80c8fa}
-.modal input,.modal select{
- background:#263b50;color:#e5eef7;border:1px solid #456078
-}
-@media(max-width:760px){
- header{height:52px}
- .app{height:auto;min-height:calc(100vh - 52px);grid-template-columns:50px minmax(0,1fr);grid-template-rows:minmax(400px,1fr) auto}
- body.animation-mode .app{grid-template-rows:minmax(400px,1fr) 175px auto}
- .toolbar{grid-row:1/4;padding:10px 4px}
- .tool{width:38px;height:38px}
- .stage{padding:12px;min-height:400px}
- .panel{grid-column:2;grid-row:3;border-left:0;border-top:1px solid #2b4054}
- .timeline{grid-column:2;grid-row:2}
- .status{display:none}
- .zoom-controls .zoom-fit{display:none}
-}
 
+/* MAGMA-INSPIRED WORKSPACE */
+header{height:50px;background:var(--panel2);padding:0 14px;gap:12px}
+.logo{font-size:20px;letter-spacing:1.8px}
+.app{
+ height:calc(100vh - 50px);
+ grid-template-columns:54px minmax(0,1fr) 270px;
+ grid-template-rows:minmax(0,1fr) 190px 0;
+}
+body.animation-mode .app{grid-template-rows:minmax(0,1fr) 190px 150px}
+.toolbar{grid-row:1/4;padding:10px 6px;background:var(--panel2);gap:8px}
+.tool{width:40px;height:40px;border-radius:9px;background:var(--white);border:1px solid var(--border);font-size:18px}
+.tool:hover{background:var(--panel)}
+.tool.active{background:var(--blue);color:white;outline:2px solid var(--blue2)}
+.stage{grid-column:2;grid-row:1;background-color:#b9d9ed;padding:22px}
+.canvas-frame{padding:4px;background:#fff;border:1px solid var(--border);box-shadow:0 5px 18px #315c7838}
+.panel{
+ grid-column:3;grid-row:1/3;overflow-y:auto;
+ background:var(--panel);border-left:1px solid var(--border);padding:12px
+}
+.panel-title{font-size:11px;letter-spacing:.8px}
+.layer-dock{
+ grid-column:2;grid-row:2;min-width:0;min-height:0;
+ background:var(--panel);border-top:1px solid var(--border);
+ padding:10px 14px;overflow:auto
+}
+.layer-dock #layerPanel{margin:0}
+.layer-dock #layerPanel>.panel-title{display:inline-block;min-width:110px;vertical-align:top;margin:0 12px 0 0;border:0}
+.layer-dock .layer-tools{display:inline-flex;width:min(220px,25%);vertical-align:middle;margin:0 10px 8px 0}
+.layer-dock .layer-properties{
+ display:inline-flex;align-items:center;gap:10px;vertical-align:middle;
+ width:min(520px,55%);padding:6px 9px;margin:0 10px 8px 0
+}
+.layer-dock .layer-properties label{margin:2px 0}
+.layer-dock .layer-properties select{width:auto;max-width:145px;margin:0;padding:5px}
+.layer-dock .layer-property-heading{gap:8px;margin:0}
+.layer-dock .layer-property-heading:has(#layerOpacityValue){display:flex}
+.layer-dock #layerOpacity{width:90px}
+.layer-dock .layer-properties .row{margin:0!important}
+.layer-dock .layer-properties .action{white-space:nowrap}
+.layer-dock #layerPanel>.row{display:inline-flex;width:auto;vertical-align:middle;margin:0 10px 8px 0!important}
+.layer-dock #layerPanel>.layer-property-heading{display:inline-flex;gap:8px;margin:0 8px 8px 0}
+.layer-dock .layers{display:flex;flex-direction:row;align-items:flex-start;overflow-x:auto;padding:4px 1px 8px}
+.layer-dock .layer{flex:0 0 190px;min-height:58px}
+.layer-dock .layer-thumb{width:54px;height:40px}
+.layer-dock .layer-empty{min-width:180px}
+.timeline{grid-column:2/4;grid-row:3;min-width:0}
+body.animation-mode .timeline{display:block}
+.zoom-controls{margin-left:auto}
+@media(max-width:900px){
+ .app{grid-template-columns:48px minmax(0,1fr);grid-template-rows:minmax(380px,1fr) 190px auto 0}
+ body.animation-mode .app{grid-template-rows:minmax(380px,1fr) 190px 150px auto}
+ .toolbar{grid-row:1/5}
+ .stage{grid-column:2;grid-row:1}
+ .panel{grid-column:2;grid-row:4;border-left:0;border-top:1px solid var(--border)}
+ .layer-dock{grid-column:2;grid-row:2}
+ .timeline{grid-column:2;grid-row:3}
+ .layer-dock .layer-properties{width:auto;max-width:100%}
+}
+@media(max-width:600px){
+ header{gap:5px;padding:0 7px}.menus{gap:0}
+ .menu>button{padding:7px 5px;font-size:10px}
+ .zoom-controls{gap:2px}.zoom-controls button{padding:0 6px}
+ .zoom-controls .zoom-fit{display:none}
+ #toggleAnimation{font-size:10px;padding:6px}
+ .layer-dock{padding:8px}
+ .layer-dock .layer-properties{display:flex;flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
@@ -490,7 +395,16 @@ input[type=range]{accent-color:#55afea}
 
   </div>
 
-  <div class="section" id="layerPanel">
+  
+<div class="section">
+ <div class="panel-title">✦ LIENZO</div>
+ <button class="action full" onclick="setBackgroundColor()">Cambiar color de fondo</button>
+ <button class="action full" onclick="exportPNG()">Exportar PNG ↓</button>
+</div>
+  <p style="font-size:10px;color:var(--muted)">TOKITO Creative Studio · 2.1</p>
+ </aside>
+
+ <section class="layer-dock"><div class="section" id="layerPanel">
  <div class="panel-title">✦ CAPAS</div>
 
  <!-- Buscador -->
@@ -562,14 +476,7 @@ input[type=range]{accent-color:#55afea}
  <div class="layers" id="layers"></div>
 
 </div>
-
-<div class="section">
- <div class="panel-title">✦ LIENZO</div>
- <button class="action full" onclick="setBackgroundColor()">Cambiar color de fondo</button>
- <button class="action full" onclick="exportPNG()">Exportar PNG ↓</button>
-</div>
-  <p style="font-size:10px;color:var(--muted)">TOKITO Creative Studio · 2.1</p>
- </aside>
+</section>
 
  <section class="timeline">
   <div class="timeline-head">
