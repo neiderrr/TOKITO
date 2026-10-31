@@ -1,0 +1,1191 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOKITO Creative Studio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root{
+ --bg:#dceefa;--panel:#eaf6ff;--panel2:#cce5f6;
+ --blue:#55a9df;--blue2:#287db5;--border:#a8cce5;
+ --text:#23394c;--muted:#66849a;--white:#f8fcff;
+}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;overflow:hidden;font-family:Nunito,sans-serif;background:var(--bg);color:var(--text)}
+header{height:48px;background:var(--panel2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:16px}
+.logo{font-size:21px;font-weight:900;color:var(--blue2);letter-spacing:2px}
+.logo span{color:var(--blue)}
+.menus{display:flex;gap:4px;height:100%;align-items:center}
+.menu{position:relative}
+.menu>button{border:0;background:transparent;padding:8px 10px;font:700 13px Nunito;cursor:pointer;color:var(--text);border-radius:6px}
+.menu>button:hover{background:var(--bg)}
+.dropdown{display:none;position:absolute;top:35px;left:0;z-index:20;background:var(--panel);border:1px solid var(--border);border-radius:8px;min-width:205px;padding:6px;box-shadow:0 5px 18px #315c7830}
+.menu.open .dropdown{display:block}
+.dropdown button{display:block;width:100%;text-align:left;padding:9px;border:0;background:transparent;color:var(--text);font:700 12px Nunito;cursor:pointer;border-radius:5px}
+.dropdown button:hover{background:var(--panel2)}
+.dropdown hr{border:0;border-top:1px solid var(--border)}
+.status{margin-left:auto;font-size:11px;color:var(--muted)}
+#toggleAnimation{border:1px solid var(--border);background:var(--white);color:var(--blue2);border-radius:7px;padding:7px 10px;font:800 11px Nunito;cursor:pointer}
+.app{height:calc(100vh - 48px);display:grid;grid-template-columns:55px minmax(0,1fr) 255px;grid-template-rows:minmax(0,1fr) 0px}
+body.animation-mode .app{grid-template-rows:minmax(0,1fr) 175px}
+.toolbar{grid-row:1/3;background:var(--panel2);border-right:1px solid var(--border);padding:9px 6px;display:flex;align-items:center;flex-direction:column;gap:8px}
+.tool{width:40px;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--white);font-size:19px;color:var(--blue2);cursor:pointer}
+.tool.active{background:var(--blue);color:white;outline:2px solid var(--blue2)}
+.stage{background-color:#b9d9ed;background-image:linear-gradient(45deg,#c9e4f4 25%,transparent 25%),linear-gradient(-45deg,#c9e4f4 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#c9e4f4 75%),linear-gradient(-45deg,transparent 75%,#c9e4f4 75%);background-size:20px 20px;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px}
+.canvas-frame{background:white;padding:5px;border:1px solid var(--border);box-shadow:0 8px 25px #416d8b55;line-height:0}
+.canvas-frame{
+ background:white;
+ padding:5px;
+ border:1px solid var(--border);
+ box-shadow:0 8px 25px #416d8b55;
+ line-height:0;
+ transform-origin:top left;
+}
+
+#paint{
+ display:block;
+ width:800px;
+ height:600px;
+ max-width:none;
+ touch-action:none;
+ cursor:crosshair;
+}
+.panel{background:var(--panel);border-left:1px solid var(--border);padding:12px;overflow-y:auto}
+.section{margin-bottom:20px}
+.panel-title{font-size:12px;font-weight:900;color:var(--blue2);letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:9px}
+label{display:block;margin:10px 0 5px;font-size:12px;font-weight:800;color:var(--muted)}
+input[type=color]{width:100%;height:32px;border:1px solid var(--border);border-radius:6px}
+input[type=range]{width:100%;accent-color:var(--blue)}
+select{width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text);font:700 12px Nunito}
+.action{border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:6px;padding:7px 9px;font:800 11px Nunito;cursor:pointer}
+.action:hover{filter:brightness(.97)}
+.action.full{width:100%;margin:3px 0}
+.row{display:flex;gap:5px;align-items:center}
+.row .action{flex:1}
+/* PANEL DE CAPAS */
+.layer-tools{
+ display:flex;
+ gap:6px;
+ margin-bottom:9px;
+}
+
+.layer-tools input{
+ width:100%;
+ min-width:0;
+ padding:8px;
+ border:1px solid var(--border);
+ border-radius:6px;
+ background:var(--white);
+ color:var(--text);
+ font:700 11px Nunito;
+}
+
+.layer-properties{
+ background:var(--panel2);
+ border:1px solid var(--border);
+ border-radius:8px;
+ padding:9px;
+ margin-bottom:10px;
+}
+
+.layer-properties label{
+ margin:5px 0;
+}
+
+.layer-properties select{
+ margin-bottom:7px;
+}
+
+.layer-property-heading{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ font-size:11px;
+ font-weight:900;
+ margin-bottom:5px;
+}
+
+.layers{
+ display:flex;
+ flex-direction:column;
+ gap:5px;
+}
+
+.layer{
+ display:flex;
+ align-items:center;
+ gap:6px;
+ min-width:0;
+ padding:7px;
+ background:var(--white);
+ border:1px solid var(--border);
+ border-radius:7px;
+ font-size:11px;
+ transition:background .15s,border .15s;
+}
+
+.layer.selected{
+ border:2px solid var(--blue);
+ background:var(--panel2);
+ padding:6px;
+}
+
+.layer-thumb{
+ width:48px;
+ height:38px;
+ flex-shrink:0;
+ border:1px solid var(--border);
+ border-radius:4px;
+ background:white;
+ object-fit:contain;
+}
+
+.layer-info{
+ flex:1;
+ min-width:0;
+ cursor:pointer;
+}
+
+.layer-name{
+ display:block;
+ width:100%;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+ font-weight:900;
+}
+
+.layer-subtitle{
+ display:block;
+ font-size:9px;
+ color:var(--muted);
+ margin-top:3px;
+}
+
+.layer-controls{
+ display:flex;
+ align-items:center;
+ gap:2px;
+}
+
+.layer button{
+ border:0;
+ background:transparent;
+ color:var(--blue2);
+ cursor:pointer;
+ padding:4px;
+ font-size:13px;
+ border-radius:4px;
+}
+
+.layer button:hover{
+ background:var(--panel2);
+}
+
+.layer.hidden .layer-info{
+ opacity:.45;
+}
+
+.layer-menu{
+ position:relative;
+}
+
+.layer-menu-content{
+ display:none;
+ position:absolute;
+ right:0;
+ top:25px;
+ z-index:30;
+ min-width:135px;
+ padding:5px;
+ background:var(--panel);
+ border:1px solid var(--border);
+ border-radius:7px;
+ box-shadow:0 5px 15px #315c7830;
+}
+
+.layer-menu.open .layer-menu-content{
+ display:block;
+}
+
+.layer-menu-content button{
+ display:block;
+ width:100%;
+ text-align:left;
+ font:700 11px Nunito;
+}
+
+.layer-empty{
+ text-align:center;
+ padding:20px 8px;
+ color:var(--muted);
+ font-size:11px;
+}
+.timeline{display:none;grid-column:2/4;background:var(--panel);border-top:1px solid var(--border);padding:10px 13px;overflow:hidden}
+body.animation-mode .timeline{display:block}
+.timeline-head{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.timeline-head strong{font-size:12px;color:var(--blue2);margin-right:auto}
+.frames{display:flex;gap:8px;overflow-x:auto;padding:3px}
+.frame{flex:0 0 82px;height:105px;border:2px solid var(--border);border-radius:6px;background:var(--white);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;font-size:11px;color:var(--muted)}
+.frame.selected{border-color:var(--blue2);background:var(--panel2)}
+.frame canvas{width:65px;height:49px;background:white;border:1px solid var(--border)}
+.modal-backdrop{display:none;position:fixed;inset:0;background:#152b3b88;z-index:50;align-items:center;justify-content:center}
+.modal{background:var(--panel);padding:20px;border:1px solid var(--border);border-radius:12px;width:min(420px,90vw);box-shadow:0 10px 35px #0003}
+.modal h2{font-size:17px;margin:0 0 12px;color:var(--blue2)}
+.modal input,.modal select{width:100%;padding:9px;border:1px solid var(--border);border-radius:6px;background:white;font:13px Nunito;margin:5px 0 12px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px}
+#fileInput{display:none}
+@media(max-width:760px){
+ body{overflow:auto;height:auto}
+ .app{height:auto;min-height:calc(100vh - 48px);grid-template-columns:48px 1fr;grid-template-rows:minmax(400px,1fr) auto}
+ body.animation-mode .app{grid-template-rows:minmax(400px,1fr) 175px auto}
+ .toolbar{grid-row:1/4}.stage{min-height:400px}.panel{grid-column:2;grid-row:3}
+ .timeline{grid-column:2;grid-row:2}
+ .status{display:none}#paint{width:75vw}
+ header{gap:6px;padding:0 7px}.menus{gap:0}.menu>button{padding:7px 5px;font-size:11px}
+ #toggleAnimation{font-size:10px;padding:6px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">TOKI<span>TO.</span></div>
+ <nav class="menus">
+  <div class="menu"><button>Archivo ▾</button><div class="dropdown">
+   <button onclick="newProject()">Nuevo proyecto　 Ctrl+N</button>
+   <button onclick="$('fileInput').click()">Abrir proyecto　 Ctrl+O</button>
+   <button onclick="saveProject()">Guardar　 Ctrl+S</button>
+   <button onclick="saveAs()">Guardar como...</button><hr>
+   <button onclick="showRecovery()">Recuperar TOKITO perdido</button><hr>
+   <button onclick="exportPNG()">Exportar PNG</button>
+  </div></div>
+  <div class="menu"><button>Editar ▾</button><div class="dropdown">
+   <button onclick="undo()">Deshacer　 Ctrl+Z</button>
+   <button onclick="redo()">Rehacer　 Ctrl+Y</button><hr>
+   <button onclick="openPreferences()">Preferencias → Temas</button>
+  </div></div>
+  <div class="menu"><button>Ver ▾</button><div class="dropdown">
+   <button onclick="toggleGrid()">Mostrar / ocultar cuadrícula</button>
+   <button onclick="updateComposite()">Actualizar lienzo</button>
+  </div></div>
+  <div class="menu"><button>Ventana ▾</button><div class="dropdown">
+   <button onclick="$('layerPanel').scrollIntoView()">Panel de capas</button>
+   <button onclick="toggleAnimation(true)">Mostrar línea de tiempo</button>
+  </div></div>
+  <div class="menu"><button>Ayuda ▾</button><div class="dropdown">
+   <button onclick="alert('TOKITO Creative Studio\\nVersión 2.1')">Acerca de TOKITO</button>
+  </div></div>
+ </nav>
+ <button id="toggleAnimation" onclick="toggleAnimation()">Activar animación</button>
+ <div class="status" id="saveStatus">● Guardado</div>
+</header>
+
+<input type="file" id="fileInput" accept=".tokito,.json" hidden>
+
+<main class="app">
+ <aside class="toolbar">
+  <button class="tool active" data-tool="pen" title="Dibujar">✎</button>
+  <button class="tool" data-tool="eraser" title="Borrador">⌫</button>
+  <button class="tool" onclick="undo()" title="Deshacer">↶</button>
+  <button class="tool" onclick="redo()" title="Rehacer">↷</button>
+  <button class="tool" onclick="clearLayer()" title="Limpiar capa">▧</button>
+ </aside>
+
+ <section class="stage" id="stage">
+  <div class="canvas-frame"><canvas id="paint" width="800" height="600"></canvas></div>
+ </section>
+
+ <aside class="panel">
+  <div class="section">
+   <div class="panel-title">✦ PINCELES Y PROPIEDADES</div>
+   <label>Tipo de pincel</label>
+   <select id="brushType">
+    <option value="pencil">Lápiz</option>
+    <option value="pen">Plumilla</option>
+    <option value="marker">Marcador</option>
+    <option value="watercolor">Acuarela</option>
+    <option value="airbrush">Aerógrafo</option>
+    <option value="pixel">Pixel</option>
+    <option value="eraser">Borrador</option>
+   </select>
+   <label>Color del pincel</label><input id="color" type="color" value="#26394a">
+   <label>Tamaño: <span id="sizeVal">8 px</span></label>
+   <input id="size" type="range" min="1" max="100" value="8">
+   <label>Opacidad: <span id="opacityVal">100%</span></label>
+   <input id="opacity" type="range" min="1" max="100" value="100">
+   <label>Estabilizador: <span id="stabilizerVal">50%</span></label>
+<input id="stabilizer" type="range" min="0" max="100" value="50">
+
+  </div>
+
+  <div class="section" id="layerPanel">
+ <div class="panel-title">✦ CAPAS</div>
+
+ <!-- Buscador -->
+ <div class="layer-tools">
+  <input
+   type="search"
+   id="layerSearch"
+   placeholder="⌕ Buscar capa..."
+   oninput="renderLayers()"
+  >
+ </div>
+
+ <!-- Propiedades de la capa seleccionada -->
+ <div class="layer-properties">
+
+  <div class="layer-property-heading">
+   <span>PROPIEDADES</span>
+   <span id="selectedLayerName">Capa 1</span>
+  </div>
+
+  <label>Modo de fusión</label>
+  <select id="layerBlend">
+   <option value="source-over">Normal</option>
+   <option value="multiply">Multiplicar</option>
+   <option value="screen">Trama</option>
+   <option value="overlay">Superponer</option>
+   <option value="darken">Oscurecer</option>
+   <option value="lighten">Aclarar</option>
+   <option value="color-dodge">Sobreexponer color</option>
+   <option value="color-burn">Subexponer color</option>
+   <option value="difference">Diferencia</option>
+  </select>
+
+  <div class="layer-property-heading">
+   <label style="margin:5px 0">Opacidad</label>
+   <span id="layerOpacityValue">100%</span>
+  </div>
+
+  <input
+   id="layerOpacity"
+   type="range"
+   min="0"
+   max="100"
+   value="100"
+  >
+  <div class="row" style="margin-top:9px">
+   <button class="action" style="flex:1" onclick="toggleSelectedLock()">
+    <span id="selectedLockLabel">🔓 Desbloquear</span>
+   </button>
+   <button class="action" style="flex:1" onclick="toggleSelectedVisibility()">
+    <span id="selectedVisibilityLabel">◉ Visible</span>
+   </button>
+  </div>
+
+ </div>
+
+ <!-- Acciones generales -->
+ <div class="row" style="margin-bottom:9px">
+  <button class="action" onclick="addLayer()">＋ Capa</button>
+  <button class="action" onclick="addBackground()">＋ Fondo</button>
+ </div>
+
+ <!-- Lista -->
+ <div class="layer-property-heading">
+  <span>LISTA DE CAPAS</span>
+  <span id="layerCount">0 capas</span>
+ </div>
+
+ <div class="layers" id="layers"></div>
+
+</div>
+
+<div class="section">
+ <div class="panel-title">✦ LIENZO</div>
+ <button class="action full" onclick="setBackgroundColor()">Cambiar color de fondo</button>
+ <button class="action full" onclick="exportPNG()">Exportar PNG ↓</button>
+</div>
+  <p style="font-size:10px;color:var(--muted)">TOKITO Creative Studio · 2.1</p>
+ </aside>
+
+ <section class="timeline">
+  <div class="timeline-head">
+   <strong>✦ FOTOGRAMAS</strong>
+   <button class="action" onclick="addFrame()">＋</button>
+   <button class="action" onclick="duplicateFrame()">Duplicar</button>
+   <button class="action" onclick="deleteFrame()">Eliminar</button>
+   <button class="action" onclick="playAnimation()">▶ Reproducir</button>
+   <label style="margin:0">FPS <input id="fps" type="number" min="1" max="30" value="8" style="width:45px"></label>
+   <span id="frameCount" style="font-size:11px;color:var(--muted)">Fotograma 1 / 1</span>
+  </div>
+  <div class="frames" id="frames"></div>
+ </section>
+</main>
+
+<div class="modal-backdrop" id="modal">
+ <div class="modal">
+  <h2 id="modalTitle">TOKITO</h2>
+  <div id="modalContent"></div>
+  <div class="modal-actions">
+   <button class="action" onclick="closeModal()">Cancelar</button>
+   <button class="action" id="modalConfirm">Aceptar</button>
+  </div>
+ </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const W=800,H=600;
+const canvas=$('paint'),ctx=canvas.getContext('2d');
+// ==========================================
+// ZOOM DEL LIENZO
+// ==========================================
+
+let zoom = 1;
+const minZoom = 0.25;
+const maxZoom = 4;
+const zoomStep = 0.1;
+
+const stage = $('stage');
+const canvasFrame = document.querySelector('.canvas-frame');
+
+function updateZoom(){
+ canvasFrame.style.transform = `scale(${zoom})`;
+ canvasFrame.style.transformOrigin = 'center center';
+}
+
+stage.addEventListener('wheel', e => {
+ e.preventDefault();
+
+ const rect = canvasFrame.getBoundingClientRect();
+
+ const mouseX = e.clientX - rect.left;
+ const mouseY = e.clientY - rect.top;
+
+ const oldZoom = zoom;
+ const direction = e.deltaY < 0 ? 1 : -1;
+
+ zoom = Math.min(maxZoom, Math.max(minZoom, zoom + direction * zoomStep));
+
+ if(zoom === oldZoom)return;
+
+ updateZoom();
+}, { passive:false });
+
+function resetZoom(){
+ zoom = 1;
+ updateZoom();
+}
+
+updateZoom();
+let projectName='Mi proyecto',tool='pen';
+let frames=[],layers=[],activeFrame=0,activeLayer=0;
+let undoStack=[],redoStack=[],playback=null,gridVisible=true,dirty=false;
+
+function makeCel(){
+ const c=document.createElement('canvas');c.width=W;c.height=H;return c;
+}
+function makeLayer(name='Capa nueva',background=false){
+ return {
+  id:crypto.randomUUID(),
+  name,
+  visible:true,
+  locked:false,
+  opacity:100,
+  blendMode:'source-over',
+  background,
+  color:'#ffffff',
+  cels:frames.map(()=>makeCel())
+ };
+}
+function initProject(){
+ frames=[{id:crypto.randomUUID()}];
+ const bg=makeLayer('Fondo',true);
+ const b=bg.cels[0].getContext('2d');b.fillStyle='#ffffff';b.fillRect(0,0,W,H);
+ layers=[bg,makeLayer('Capa 1')];activeFrame=0;activeLayer=1;
+ undoStack=[];redoStack=[];renderAll();markClean();
+}
+function currentLayer(){return layers[activeLayer]}
+function currentCel(){return currentLayer().cels[activeFrame]}
+
+function composite(target=canvas){
+ const c=target.getContext('2d');
+
+ c.clearRect(0,0,W,H);
+
+ layers.forEach(l=>{
+  if(!l.visible)return;
+
+  c.save();
+  c.globalAlpha=l.opacity/100;
+  c.globalCompositeOperation=l.blendMode||'source-over';
+  c.drawImage(l.cels[activeFrame],0,0);
+  c.restore();
+ });
+}
+function updateComposite(){composite();renderFrames()}
+function renderAll(){renderLayers();renderFrames();composite();$('frameCount').textContent=`Fotograma ${activeFrame+1} / ${frames.length}`}
+
+function renderLayers(){
+
+ const box=$('layers');
+ const search=$('layerSearch')?.value.toLowerCase().trim()||'';
+
+ box.innerHTML='';
+
+ $('layerCount').textContent=layers.length+' capas';
+
+ layers.forEach((l,i)=>{
+
+  if(!l.name.toLowerCase().includes(search))return;
+
+  const el=document.createElement('div');
+
+  el.className='layer'+
+   (i===activeLayer?' selected':'')+
+   (!l.visible?' hidden':'');
+
+  // Miniatura
+  const mini=document.createElement('canvas');
+  mini.className='layer-thumb';
+  mini.width=96;
+  mini.height=72;
+
+  const m=mini.getContext('2d');
+
+  m.fillStyle='#ffffff';
+  m.fillRect(0,0,96,72);
+  m.drawImage(l.cels[activeFrame],0,0,96,72);
+
+  // Información
+  const info=document.createElement('div');
+  info.className='layer-info';
+
+  const name=document.createElement('span');
+  name.className='layer-name';
+  name.textContent=l.name;
+
+  const subtitle=document.createElement('span');
+  subtitle.className='layer-subtitle';
+  subtitle.textContent=
+   (l.background?'Fondo':'Capa')+
+   ' · '+l.opacity+'%';
+
+  info.append(name,subtitle);
+
+  info.onclick=()=>{
+   activeLayer=i;
+   renderAll();
+  };
+
+  // Controles
+  const controls=document.createElement('div');
+  controls.className='layer-controls';
+
+  const visibility=document.createElement('button');
+  visibility.title='Mostrar u ocultar';
+  visibility.textContent=l.visible?'◉':'○';
+
+  visibility.onclick=()=>{
+   l.visible=!l.visible;
+   renderAll();
+   markDirty();
+  };
+
+  const lock=document.createElement('button');
+  lock.title='Bloquear o desbloquear';
+  lock.textContent=l.locked?'🔒':'🔓';
+
+  lock.onclick=()=>{
+   l.locked=!l.locked;
+   renderLayers();
+   updateLayerProperties();
+   markDirty();
+  };
+
+  // Menú individual
+  const menu=document.createElement('div');
+  menu.className='layer-menu';
+
+  const menuButton=document.createElement('button');
+  menuButton.textContent='⋮';
+  menuButton.title='Más opciones';
+
+  const menuContent=document.createElement('div');
+  menuContent.className='layer-menu-content';
+
+  const actions=[
+   ['Duplicar',()=>{activeLayer=i;duplicateLayer()}],
+   ['Renombrar',()=>{activeLayer=i;renameLayer()}],
+   ['Subir capa ↑',()=>{activeLayer=i;moveLayer(-1)}],
+   ['Bajar capa ↓',()=>{activeLayer=i;moveLayer(1)}],
+   ['Eliminar',()=>{activeLayer=i;deleteLayer()}]
+  ];
+
+  actions.forEach(([label,action])=>{
+   const button=document.createElement('button');
+   button.textContent=label;
+
+   button.onclick=e=>{
+    e.stopPropagation();
+    menu.classList.remove('open');
+    action();
+   };
+
+   menuContent.appendChild(button);
+  });
+
+  menuButton.onclick=e=>{
+   e.stopPropagation();
+
+   document.querySelectorAll('.layer-menu').forEach(x=>{
+    if(x!==menu)x.classList.remove('open');
+   });
+
+   menu.classList.toggle('open');
+  };
+
+  menu.append(menuButton,menuContent);
+
+  controls.append(visibility,lock,menu);
+
+  el.append(mini,info,controls);
+  box.appendChild(el);
+
+ });
+
+ if(box.children.length===0){
+  box.innerHTML='<div class="layer-empty">No se encontraron capas.</div>';
+ }
+
+ updateLayerProperties();
+}
+function updateLayerProperties(){
+
+ const l=currentLayer();
+
+ if(!l)return;
+
+ $('selectedLayerName').textContent=l.name;
+
+ $('layerBlend').value=l.blendMode||'source-over';
+
+ $('layerOpacity').value=l.opacity;
+ $('layerOpacityValue').textContent=l.opacity+'%';
+
+ $('selectedLockLabel').textContent=
+  l.locked?'🔒 Bloqueada':'🔓 Desbloquear';
+
+ $('selectedVisibilityLabel').textContent=
+  l.visible?'◉ Visible':'○ Oculta';
+}
+
+$('layerBlend').addEventListener('change',()=>{
+
+ const l=currentLayer();
+ if(!l)return;
+
+ l.blendMode=$('layerBlend').value;
+
+ composite();
+ renderFrames();
+ renderLayers();
+ markDirty();
+
+});
+
+$('layerOpacity').addEventListener('input',()=>{
+ const l=currentLayer();
+ if(!l)return;
+
+ l.opacity=Number($('layerOpacity').value);
+
+ $('layerOpacityValue').textContent=l.opacity+'%';
+
+ composite();
+ renderFrames();
+ markDirty();
+});
+
+function toggleSelectedLock(){
+
+ const l=currentLayer();
+ if(!l)return;
+
+ l.locked=!l.locked;
+
+ renderLayers();
+ markDirty();
+
+}
+
+function toggleSelectedVisibility(){
+
+ const l=currentLayer();
+ if(!l)return;
+
+ l.visible=!l.visible;
+
+ renderAll();
+ markDirty();
+
+}
+function renderFrames(){
+ const box=$('frames');box.innerHTML='';
+ frames.forEach((f,i)=>{
+  const el=document.createElement('div');el.className='frame'+(i===activeFrame?' selected':'');
+  const mini=document.createElement('canvas');mini.width=120;mini.height=90;
+  const m=mini.getContext('2d');m.fillStyle='#fff';m.fillRect(0,0,120,90);
+layers.forEach(l=>{
+ if(l.visible){
+  m.save();
+  m.globalAlpha=l.opacity/100;
+  m.globalCompositeOperation=l.blendMode||'source-over';
+  m.drawImage(l.cels[i],0,0,120,90);
+  m.restore();
+ }
+});
+  el.append(mini);
+  const label=document.createElement('span');label.textContent='Fotograma '+(i+1);el.append(label);
+  el.onclick=()=>selectFrame(i);box.append(el);
+ });
+ $('frameCount').textContent=`Fotograma ${activeFrame+1} / ${frames.length}`;
+}
+function selectFrame(i){activeFrame=i;renderAll();}
+
+function addLayer(){
+ const l=makeLayer('Capa '+(layers.length));
+ layers.splice(activeLayer+1,0,l);activeLayer++;renderAll();markDirty();
+}
+function addBackground(){
+ const color=prompt('Color del fondo (ej. #ffffff):','#ffffff');if(color===null)return;
+ const l=makeLayer('Fondo '+(layers.filter(x=>x.background).length+1),true);
+ l.color=color;l.cels.forEach(c=>{const x=c.getContext('2d');x.fillStyle=color;x.fillRect(0,0,W,H)});
+ layers.unshift(l);activeLayer=0;renderAll();markDirty();
+}
+function deleteLayer(){
+ if(layers.length<=1){alert('Debe existir al menos una capa.');return}
+ if(!confirm('¿Eliminar la capa seleccionada?'))return;
+ layers.splice(activeLayer,1);activeLayer=Math.max(0,activeLayer-1);renderAll();markDirty();
+}
+function duplicateLayer(){
+ const o=currentLayer();
+ const copy={...o,id:crypto.randomUUID(),name:o.name+' copia',cels:o.cels.map(c=>{const n=makeCel();n.getContext('2d').drawImage(c,0,0);return n})};
+ layers.splice(activeLayer+1,0,copy);activeLayer++;renderAll();markDirty();
+}
+function renameLayer(){
+ const name=prompt('Nombre de la capa:',currentLayer().name);
+ if(name?.trim()){currentLayer().name=name.trim();renderLayers();markDirty()}
+}
+function moveLayer(d){
+ const to=activeLayer+d;if(to<0||to>=layers.length)return;
+ [layers[activeLayer],layers[to]]=[layers[to],layers[activeLayer]];
+ activeLayer=to;renderAll();markDirty();
+}
+function setBackgroundColor(){
+ const l=layers.find(x=>x.background);
+ if(!l){alert('Primero agrega una capa de fondo.');return}
+ const value=prompt('Color de fondo:',l.color||'#ffffff');if(!value)return;
+ l.color=value;
+ const c=l.cels[activeFrame].getContext('2d');c.clearRect(0,0,W,H);
+ c.fillStyle=value;c.fillRect(0,0,W,H);renderAll();markDirty();
+}
+
+function addFrame(){
+ frames.push({id:crypto.randomUUID()});layers.forEach(l=>l.cels.push(makeCel()));
+ activeFrame=frames.length-1;renderAll();markDirty();
+}
+function duplicateFrame(){
+ const i=activeFrame;frames.splice(i+1,0,{id:crypto.randomUUID()});
+ layers.forEach(l=>{const c=makeCel();c.getContext('2d').drawImage(l.cels[i],0,0);l.cels.splice(i+1,0,c)});
+ activeFrame=i+1;renderAll();markDirty();
+}
+function deleteFrame(){
+ if(frames.length===1){alert('Debe existir al menos un fotograma.');return}
+ frames.splice(activeFrame,1);layers.forEach(l=>l.cels.splice(activeFrame,1));
+ activeFrame=Math.max(0,activeFrame-1);renderAll();markDirty();
+}
+
+// HISTORIAL
+function snapshot(){
+ return {frames:frames.map(f=>f.id),activeFrame,activeLayer,
+  layers:layers.map(l=>({...l,cels:l.cels.map(c=>c.toDataURL())}))};
+}
+async function restoreSnapshot(s){
+ frames=s.frames.map(id=>({id}));
+ layers=s.layers.map(l=>({
+ ...l,
+ opacity:l.opacity??100,
+ visible:l.visible??true,
+ locked:l.locked??false,
+ blendMode:l.blendMode||'source-over',
+ cels:l.cels.map(()=>makeCel())
+}));
+ await Promise.all(s.layers.flatMap((l,i)=>l.cels.map((url,j)=>new Promise(resolve=>{
+  const im=new Image();im.onload=()=>{layers[i].cels[j].getContext('2d').drawImage(im,0,0);resolve()};
+  im.onerror=resolve;im.src=url;
+ }))));
+ activeFrame=Math.min(s.activeFrame,frames.length-1);
+ activeLayer=Math.min(s.activeLayer,layers.length-1);
+ renderAll();markDirty();
+}
+function saveHistory(){
+ undoStack.push(snapshot());if(undoStack.length>25)undoStack.shift();redoStack=[];
+}
+async function undo(){
+ if(!undoStack.length)return;
+ const current=snapshot(),previous=undoStack.pop();redoStack.push(current);await restoreSnapshot(previous);
+}
+async function redo(){
+ if(!redoStack.length)return;
+ const current=snapshot(),next=redoStack.pop();undoStack.push(current);await restoreSnapshot(next);
+}
+// ==========================================
+// SISTEMA DE PINCELES Y TRAZOS DE TOKITO
+// ==========================================
+
+let drawing = false;
+let last = null;
+let smoothedPoint = null;
+let activePointer = null;
+
+// Posición del puntero dentro del lienzo
+function position(e){
+ const r = canvas.getBoundingClientRect();
+ return {
+  x:(e.clientX-r.left)*(canvas.width/r.width),
+  y:(e.clientY-r.top)*(canvas.height/r.height),
+  pressure:e.pointerType === 'mouse' ? 1 : (e.pressure || 1)
+ };
+}
+
+// Estabilización del movimiento
+function stabilizePoint(point){
+ const amount = Number($('stabilizer')?.value ?? 50);
+ const smoothing = amount / 100;
+ 
+ if(!smoothedPoint){
+  smoothedPoint = {...point};
+  return smoothedPoint;
+ }
+
+ // Cuanto mayor el estabilizador, más suave y lento será el trazo
+ const factor = Math.max(0.08, 1 - smoothing * 0.92);
+
+ smoothedPoint = {
+  x: smoothedPoint.x + (point.x-smoothedPoint.x)*factor,
+  y: smoothedPoint.y + (point.y-smoothedPoint.y)*factor,
+  pressure: point.pressure
+ };
+
+ return smoothedPoint;
+}
+
+// Dibujar segmento con propiedades del pincel
+function draw(a,b){
+ const l=currentLayer();
+ if(!l || l.locked)return;
+
+ const c=currentCel().getContext('2d');
+ const brush=$('brushType').value;
+ const size=Number($('size').value);
+ const opacity=Number($('opacity').value)/100;
+ const color=$('color').value;
+
+ const pressure=Math.max(0.15,Math.min(1,b.pressure??1));
+
+ c.save();
+ c.lineCap='round';
+ c.lineJoin='round';
+ c.lineWidth=size;
+ c.globalAlpha=opacity;
+ c.globalCompositeOperation='source-over';
+ c.strokeStyle=color;
+ c.fillStyle=color;
+ c.shadowBlur=0;
+
+ if(brush==='eraser'||tool==='eraser'){
+  c.globalCompositeOperation='destination-out';
+  c.globalAlpha=1;
+ }
+
+ if(brush==='pencil'){
+  c.lineWidth=size*0.8*pressure;
+  c.globalAlpha=opacity*0.85;
+ }
+
+ if(brush==='pen'){
+  c.lineWidth=size*pressure;
+ }
+
+ if(brush==='marker'){
+  c.lineWidth=size*1.5;
+  c.globalAlpha=opacity*0.45;
+ }
+
+ if(brush==='watercolor'){
+  c.lineWidth=size*1.8;
+  c.globalAlpha=opacity*0.2;
+ }
+
+ if(brush==='airbrush'){
+  c.lineWidth=size;
+  c.globalAlpha=opacity*0.12;
+  c.shadowBlur=size*0.7;
+  c.shadowColor=color;
+ }
+
+ if(brush==='pixel'){
+  c.lineCap='square';
+  c.lineJoin='miter';
+  c.lineWidth=Math.max(1,Math.round(size/3));
+  a={...a,x:Math.round(a.x),y:Math.round(a.y)};
+  b={...b,x:Math.round(b.x),y:Math.round(b.y)};
+ }
+
+ c.beginPath();
+ c.moveTo(a.x,a.y);
+ c.lineTo(b.x,b.y);
+ c.stroke();
+
+ c.restore();
+
+ composite();
+ renderFrames();
+}
+
+// ==========================================
+// EVENTOS DEL LIENZO
+// ==========================================
+
+canvas.addEventListener('pointerdown',e=>{
+ if(currentLayer().locked){
+  alert('Esta capa está bloqueada.');
+  return;
+ }
+
+ e.preventDefault();
+ canvas.setPointerCapture(e.pointerId);
+
+ drawing=true;
+ activePointer=e.pointerId;
+ saveHistory();
+
+ last=position(e);
+ smoothedPoint={...last};
+
+ draw(last,last);
+});
+
+canvas.addEventListener('pointermove',e=>{
+ if(!drawing || e.pointerId!==activePointer)return;
+
+ e.preventDefault();
+
+ const raw=position(e);
+ const p=stabilizePoint(raw);
+
+ draw(last,p);
+ last=p;
+});
+
+function stopDraw(e){
+ if(!drawing)return;
+ if(e && e.pointerId!==activePointer)return;
+
+ markDirty();
+
+ drawing=false;
+ last=null;
+ smoothedPoint=null;
+ activePointer=null;
+}
+
+canvas.addEventListener('pointerup',stopDraw);
+canvas.addEventListener('pointercancel',stopDraw);
+canvas.addEventListener('lostpointercapture',stopDraw);
+
+// ==========================================
+// SELECCIÓN DE HERRAMIENTAS
+// ==========================================
+
+document.querySelectorAll('[data-tool]').forEach(b=>{
+ b.onclick=()=>{
+  tool=b.dataset.tool;
+
+  if(tool==='eraser'){
+   $('brushType').value='eraser';
+  }else if($('brushType').value==='eraser'){
+   $('brushType').value='pen';
+  }
+
+  document.querySelectorAll('[data-tool]').forEach(x=>{
+   x.classList.toggle('active',x===b);
+  });
+ };
+});
+
+$('brushType').onchange=()=>{
+ tool=$('brushType').value==='eraser'?'eraser':'pen';
+
+ document.querySelectorAll('[data-tool]').forEach(x=>{
+  x.classList.toggle('active',x.dataset.tool===tool);
+ });
+};
+function clearLayer(){
+ if(!confirm('¿Limpiar el contenido de esta capa en este fotograma?'))return;
+ saveHistory();currentCel().getContext('2d').clearRect(0,0,W,H);renderAll();markDirty();
+}
+$('size').oninput=()=> $('sizeVal').textContent=$('size').value+' px';
+$('opacity').oninput=()=> $('opacityVal').textContent=$('opacity').value+'%';
+$('stabilizer').oninput=()=>{
+ $('stabilizerVal').textContent=$('stabilizer').value+'%';
+};
+
+// ANIMACIÓN OPCIONAL
+function toggleAnimation(force){
+ const active=force===true?true:!document.body.classList.contains('animation-mode');
+ document.body.classList.toggle('animation-mode',active);
+ $('toggleAnimation').textContent=active?'Desactivar animación':'Activar animación';
+ if(!active&&playback){clearInterval(playback);playback=null}
+}
+function playAnimation(){
+ if(playback){clearInterval(playback);playback=null;return}
+ if(frames.length<2){alert('Agrega al menos dos fotogramas para reproducir.');return}
+ toggleAnimation(true);
+ playback=setInterval(()=>{activeFrame=(activeFrame+1)%frames.length;renderAll()},1000/Math.max(1,Number($('fps').value)||8));
+}
+
+// ARCHIVOS
+function serializeProject(){
+ return {format:'TOKITO',version:2,name:projectName,width:W,height:H,
+  frames:frames.map(f=>f.id),activeFrame,activeLayer,
+  layers:layers.map(l=>({...l,cels:l.cels.map(c=>c.toDataURL())}))};
+}
+async function loadProject(data){
+ if(data.format!=='TOKITO'||!Array.isArray(data.layers)||!Array.isArray(data.frames))throw Error('Archivo TOKITO no válido');
+ projectName=data.name||'Proyecto importado';frames=data.frames.map(id=>({id}));
+ layers=data.layers.map(l=>({
+ ...l,
+ opacity:l.opacity??100,
+ visible:l.visible??true,
+ locked:l.locked??false,
+ blendMode:l.blendMode||'source-over',
+ cels:l.cels.map(()=>makeCel())
+}));
+ await Promise.all(data.layers.flatMap((l,i)=>l.cels.map((url,j)=>new Promise(resolve=>{
+  const im=new Image();im.onload=()=>{layers[i].cels[j].getContext('2d').drawImage(im,0,0);resolve()};
+  im.onerror=resolve;im.src=url;
+ }))));
+ activeFrame=Math.min(data.activeFrame||0,frames.length-1);
+ activeLayer=Math.min(data.activeLayer||0,layers.length-1);
+ undoStack=[];redoStack=[];renderAll();markClean();
+}
+function saveProject(){
+ try{
+  localStorage.setItem('tokito-project',JSON.stringify(serializeProject()));
+  markClean();$('saveStatus').textContent='● Guardado localmente';
+ }catch(e){alert('No se pudo guardar. El proyecto puede ser demasiado grande. Usa Guardar como para descargar una copia.')}
+}
+function saveAs(){
+ try{
+  const blob=new Blob([JSON.stringify(serializeProject())],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=(projectName||'proyecto')+'.tokito';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);saveProject();
+ }catch(e){alert('No se pudo exportar el proyecto.')}
+}
+function newProject(){
+ if(dirty&&!confirm('Hay cambios sin guardar. ¿Crear un proyecto nuevo?'))return;
+ const name=prompt('Nombre del proyecto:','Mi proyecto');if(name===null)return;
+ projectName=name.trim()||'Mi proyecto';initProject();saveProject();
+}
+$('fileInput').addEventListener('change',async e=>{
+ const file=e.target.files[0];if(!file)return;
+ try{await loadProject(JSON.parse(await file.text()))}
+ catch(err){alert('No se pudo abrir el proyecto: '+err.message)}
+ e.target.value='';
+});
+function exportPNG(){
+
+ const out=document.createElement('canvas');
+ out.width=W;
+ out.height=H;
+
+ composite(out);
+
+ const a=document.createElement('a');
+
+ a.download=projectName+'.png';
+ a.href=out.toDataURL('image/png');
+ a.click();
+
+}
+
+// AUTOGUARDADO Y RECUPERACIÓN
+function markDirty(){dirty=true;$('saveStatus').textContent='● Cambios sin guardar'}
+function markClean(){dirty=false;$('saveStatus').textContent='● Guardado'}
+function autosave(){
+ try{
+  localStorage.setItem('tokito-recovery',JSON.stringify({...serializeProject(),savedAt:new Date().toISOString()}));
+  $('saveStatus').textContent='● Autoguardado '+new Date().toLocaleTimeString();
+ }catch(e){$('saveStatus').textContent='⚠ No se pudo autoguardar'}
+}
+setInterval(autosave,300000);
+window.addEventListener('beforeunload',()=>{if(dirty)autosave()});
+function showRecovery(){
+ const raw=localStorage.getItem('tokito-recovery');
+ if(!raw){alert('No hay una recuperación disponible.');return}
+ const data=JSON.parse(raw);
+ const date=data.savedAt?new Date(data.savedAt).toLocaleString():'Fecha desconocida';
+ openModal('Recuperar TOKITO perdido',
+  `<p>Se encontró un autoguardado del proyecto <b>${data.name||'Sin nombre'}</b>.</p><p>Fecha: ${date}</p><p>¿Deseas recuperar este trabajo?</p>`,
+  async()=>{await loadProject(data);closeModal()});
+}
+function openModal(title,html,callback){
+ $('modalTitle').textContent=title;$('modalContent').innerHTML=html;
+ $('modal').style.display='flex';$('modalConfirm').onclick=callback;
+}
+function closeModal(){$('modal').style.display='none'}
+
+// TEMAS
+const themes={
+ 'Azul claro':['#dceefa','#eaf6ff','#cce5f6','#55a9df','#287db5','#a8cce5','#23394c','#66849a'],
+ 'Rosado claro':['#fce8f0','#fff2f7','#f5d5e3','#e99abd','#bd5b87','#e8b7ce','#503346','#986c83'],
+ 'Morado':['#eae0fa','#f4edff','#d9c9f2','#a987dc','#7650b6','#c8b4e8','#392b50','#806b9b'],
+ 'Gris oscuro':['#292d33','#373d45','#22262c','#688eaf','#9cc9e8','#515963','#f0f2f5','#b8c0c9'],
+ 'Gris claro':['#e8e8e8','#f5f5f5','#d8d8d8','#999999','#555555','#c5c5c5','#292929','#737373'],
+ 'Azul oscuro':['#172d43','#203c56','#102538','#397da9','#75b9e5','#31536e','#edf6ff','#a9c5d9']
+};
+function applyTheme(name){
+ const t=themes[name];if(!t)return;
+ ['--bg','--panel','--panel2','--blue','--blue2','--border','--text','--muted'].forEach((v,i)=>document.documentElement.style.setProperty(v,t[i]));
+ localStorage.setItem('tokito-theme',name);
+}
+function openPreferences(){
+ openModal('Preferencias · Temas',
+  `<label>Selecciona un tema</label><select id="themeChoice">${Object.keys(themes).map(t=>`<option>${t}</option>`).join('')}</select>`,
+  ()=>{applyTheme($('themeChoice').value);closeModal()});
+ $('themeChoice').value=localStorage.getItem('tokito-theme')||'Azul claro';
+}
+function toggleGrid(){
+ gridVisible=!gridVisible;$('stage').style.backgroundImage=gridVisible?'':'none';
+}
+
+// MENÚS Y ATAJOS
+document.querySelectorAll('.menu>button').forEach(b=>b.onclick=e=>{
+ const parent=b.parentElement;
+ document.querySelectorAll('.menu').forEach(m=>{if(m!==parent)m.classList.remove('open')});
+ parent.classList.toggle('open');e.stopPropagation();
+});
+document.addEventListener('click',()=>document.querySelectorAll('.menu').forEach(m=>m.classList.remove('open')));
+window.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject()}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='o'){e.preventDefault();$('fileInput').click()}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();newProject()}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}
+});
+
+initProject();
+const savedTheme=localStorage.getItem('tokito-theme');if(savedTheme)applyTheme(savedTheme);
+const previous=localStorage.getItem('tokito-project');
+if(previous){try{loadProject(JSON.parse(previous))}catch(e){console.warn('No se pudo cargar el proyecto anterior')}}
+</script>
+</body>
+</html>
