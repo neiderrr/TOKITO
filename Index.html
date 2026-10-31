@@ -248,6 +248,22 @@ body.animation-mode .timeline{display:block}
 }
 
 
+/* BIBLIOTECA DE PINCELES AL ESTILO MAGMA */
+.brush-search-wrap{margin:0 0 9px}
+.brush-search-wrap input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;background:var(--white);color:var(--text);font:700 11px Nunito}
+.brush-categories{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;margin-bottom:5px}
+.brush-category{flex:0 0 auto;border:1px solid var(--border);border-radius:6px;padding:6px 8px;background:var(--panel2);color:var(--muted);font:800 10px Nunito;cursor:pointer}
+.brush-category.active{background:var(--blue);border-color:var(--blue2);color:white}
+.brush-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:5px 0 10px}
+.brush-card{min-width:0;border:1px solid var(--border);border-radius:8px;background:var(--white);padding:6px;cursor:pointer;text-align:left;color:var(--text);font:800 10px Nunito}
+.brush-card:hover{border-color:var(--blue);background:var(--panel2)}
+.brush-card.active{border:2px solid var(--blue2);background:var(--panel2);padding:5px}
+.brush-preview{height:43px;border-radius:5px;background:linear-gradient(45deg,#f1f7fb 25%,transparent 25%,transparent 75%,#f1f7fb 75%),linear-gradient(45deg,#f1f7fb 25%,white 25%,white 75%,#f1f7fb 75%);background-size:12px 12px;background-position:0 0,6px 6px;display:flex;align-items:center;justify-content:center;margin-bottom:5px}
+.brush-preview svg{width:100%;height:34px;overflow:visible}
+.brush-card small{display:block;color:var(--muted);font-size:9px;font-weight:600;margin-top:2px}
+.brush-selected{font-size:10px;font-weight:900;color:var(--blue2);padding:7px 0 2px;border-top:1px solid var(--border);margin-bottom:10px}
+.panel .section:first-child{padding-bottom:8px;border-bottom:1px solid var(--border)}
+
 /* MAGMA-INSPIRED WORKSPACE */
 header{height:50px;background:var(--panel2);padding:0 14px;gap:12px}
 .logo{font-size:20px;letter-spacing:1.8px}
@@ -374,17 +390,23 @@ body.animation-mode .timeline{display:block}
 
  <aside class="panel">
   <div class="section">
-   <div class="panel-title">✦ PINCELES Y PROPIEDADES</div>
-   <label>Tipo de pincel</label>
-   <select id="brushType">
-    <option value="pencil">Lápiz</option>
-    <option value="pen">Plumilla</option>
-    <option value="marker">Marcador</option>
-    <option value="watercolor">Acuarela</option>
-    <option value="airbrush">Aerógrafo</option>
-    <option value="pixel">Pixel</option>
+   <div class="panel-title">✦ BIBLIOTECA DE PINCELES</div>
+   <div class="brush-search-wrap"><input id="brushSearch" type="search" placeholder="⌕ Buscar pincel..."></div>
+   <div class="brush-categories" id="brushCategories">
+    <button class="brush-category active" data-category="General">General</button>
+    <button class="brush-category" data-category="Sketch & Chalk">Sketch & Chalk</button>
+    <button class="brush-category" data-category="Blend & Paint">Blend & Paint</button>
+    <button class="brush-category" data-category="Textured">Textured</button>
+    <button class="brush-category" data-category="Markers & Shapes">Markers & Shapes</button>
+   </div>
+   <div class="brush-grid" id="brushGrid"></div>
+   <select id="brushType" aria-label="Tipo de pincel" style="display:none">
+    <option value="pencil">Lápiz</option><option value="pen">Plumilla</option>
+    <option value="marker">Marcador</option><option value="watercolor">Acuarela</option>
+    <option value="airbrush">Aerógrafo</option><option value="pixel">Pixel</option>
     <option value="eraser">Borrador</option>
    </select>
+   <div class="brush-selected" id="brushSelected">Plumilla · General</div>
    <label>Color del pincel</label><input id="color" type="color" value="#26394a">
    <label>Tamaño: <span id="sizeVal">8 px</span></label>
    <input id="size" type="range" min="1" max="100" value="8">
@@ -1156,6 +1178,50 @@ document.querySelectorAll('[data-tool]').forEach(b=>{
   });
  };
 });
+
+// Biblioteca visual de pinceles: categorías y selección
+const brushLibrary=[
+ {name:'Plumilla',type:'pen',category:'General',desc:'Línea limpia'},
+ {name:'Tinta suave',type:'pen',category:'General',desc:'Trazo fluido'},
+ {name:'Redondo',type:'pen',category:'General',desc:'Punta redonda'},
+ {name:'Aerógrafo',type:'airbrush',category:'General',desc:'Difuminado'},
+ {name:'Lápiz',type:'pencil',category:'Sketch & Chalk',desc:'Grafito'},
+ {name:'Boceto',type:'pencil',category:'Sketch & Chalk',desc:'Trazo suelto'},
+ {name:'Carboncillo',type:'pencil',category:'Sketch & Chalk',desc:'Textura seca'},
+ {name:'Acuarela',type:'watercolor',category:'Blend & Paint',desc:'Pigmento suave'},
+ {name:'Mezcla húmeda',type:'watercolor',category:'Blend & Paint',desc:'Pintura húmeda'},
+ {name:'Marcador',type:'marker',category:'Markers & Shapes',desc:'Punta ancha'},
+ {name:'Pixel',type:'pixel',category:'Markers & Shapes',desc:'Bordes cuadrados'}
+];
+let activeBrushCategory='General';
+let activeBrushName='Plumilla';
+function renderBrushLibrary(){
+ const grid=$('brushGrid');if(!grid)return;
+ const query=($('brushSearch')?.value||'').toLowerCase();
+ grid.innerHTML='';
+ brushLibrary.filter(b=>(b.category===activeBrushCategory||query)&&
+  (b.name+' '+b.desc+' '+b.category).toLowerCase().includes(query))
+ .forEach(b=>{
+  const card=document.createElement('button');
+  card.type='button';card.className='brush-card'+(b.name===activeBrushName?' active':'');
+  card.innerHTML='<span class="brush-preview"><svg viewBox="0 0 120 34" aria-hidden="true"><path d="M8 23 Q34 5 58 18 T112 12" fill="none" stroke="#287db5" stroke-width="'+(b.type==='marker'?9:b.type==='pencil'?2:4)+'" stroke-linecap="round" opacity="'+(b.type==='marker'?.48:b.type==='watercolor'?.35:1)+'"/></svg></span>'+b.name+'<small>'+b.desc+'</small>';
+  card.onclick=()=>{
+   activeBrushName=b.name;$('brushType').value=b.type;
+   if(tool==='eraser')tool='pen';
+   document.querySelectorAll('[data-tool]').forEach(x=>x.classList.toggle('active',x.dataset.tool===tool));
+   $('brushSelected').textContent=b.name+' · '+b.category;
+   renderBrushLibrary();
+  };
+  grid.appendChild(card);
+ });
+}
+document.querySelectorAll('.brush-category').forEach(button=>button.addEventListener('click',()=>{
+ activeBrushCategory=button.dataset.category;
+ document.querySelectorAll('.brush-category').forEach(x=>x.classList.toggle('active',x===button));
+ renderBrushLibrary();
+}));
+$('brushSearch').addEventListener('input',renderBrushLibrary);
+renderBrushLibrary();
 
 $('brushType').onchange=()=>{
  tool=$('brushType').value==='eraser'?'eraser':'pen';
